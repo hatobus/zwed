@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import codecs
 
 
@@ -23,6 +22,7 @@ class ZWED():
         return out
     
     def Encode(self, string):
+        string = string.replace("\n", "")
         quat = []
         for c in list(string):
             h = hex(ord(c))
