@@ -1,4 +1,5 @@
 import codecs
+import binascii
 
 
 ZWSP={'0': '\u200b', '1': '\u200c', '2':'\u200d', '3': '\ufeff'}
@@ -7,12 +8,14 @@ class ZWED():
     def __init__(self):
         pass
 
+    # Exchange base N --> 10
     def B10toN(self, num, base):
         isdev = int(num / base)
         if (isdev):
             return self.B10toN(isdev, base) + str(num%base)
         return str(num % base)
     
+    # Excange base 10 --> N
     def BNto10(self, num, base):
         out = 0
     
@@ -23,15 +26,13 @@ class ZWED():
     
     def Encode(self, string):
         string = string.replace("\n", "")
-        quat = []
-        for c in list(string):
-            h = hex(ord(c))
-            d = int(h, 16)
         
-            quat.append(self.B10toN(d, 4))
-        
-        quatstr = ''.join(quat)
-        
+        bytstr = binascii.hexlify(string.encode("utf-8"))
+        hexstr = bytstr.decode("utf-8")
+        dec = int(hexstr, 16)
+
+        quatstr = self.B10toN(dec, 4)
+
         for d, s in ZWSP.items():
             quatstr = quatstr.replace(d, s)
         
@@ -41,27 +42,20 @@ class ZWED():
         for d, s in ZWSP.items():
             zwstr = zwstr.replace(s, d) 
     
-        zwlist = []
-        start = 0
-    
-        for i in range(int(len(zwstr)/4)):
-            end = start+4
-            zwlist.append(zwstr[start:end])
-            start = end
-    
-        b10list = [self.BNto10(c, 4) for c in zwlist]
-        hexlist = [hex(i) for i in b10list]
-    
-        hexstrx0 = ''.join(hexlist)
-        hexstr = hexstrx0.replace("0x", "")
-        bytstr = codecs.decode(hexstr, "hex")
-    
-        return bytstr.decode("UTF-8")
+        dec = self.BNto10(zwstr, 4)
+        print(dec)
+        hexstr = hex(dec)[2:]
+        print(hexstr)
 
+        print(binascii.unhexlify(hexstr.encode("utf-8")))
+
+        return str(binascii.unhexlify(hexstr), 'utf-8')
 
 if __name__ == "__main__":
     ZW = ZWED()
-    zwstr = ZW.Encode("ABC")
+    #zwstr = ZW.Encode("あいうえお")
+    zwstr = ZW.Encode("abcdefgh")
     print(zwstr)
     decoded = ZW.Decode(zwstr)
     print(decoded)
+    #print(decoded.decode('utf-8'))
