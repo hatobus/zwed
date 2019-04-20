@@ -1,6 +1,6 @@
 package main
 
-import "github.com/hatobus/zwed/cmd/zwed/"
+import "github.com/hatobus/zwed/cmd/zwed/zwed"
 
 func main() {
 	test := "a"
