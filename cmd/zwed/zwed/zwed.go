@@ -2,7 +2,6 @@ package zwed
 
 import (
 	"fmt"
-	"log"
 	"math"
 	"strconv"
 	"strings"
@@ -28,13 +27,12 @@ func decimalToQuat(num int64) string {
 	for true {
 		mod = num % 4
 		strarr = append(strarr, mod)
+		// int同士の割り算はintになる
 		num = num / 4
 		if num == 0 {
 			break
 		}
 	}
-
-	log.Println(strarr)
 
 	var outbuf int64 = 0
 	for i := len(strarr) - 1; i >= 0; i-- {
@@ -44,11 +42,26 @@ func decimalToQuat(num int64) string {
 	return strconv.Itoa(int(outbuf))
 }
 
-func quatToDecimal(num int64) int64 {
-	return 0
+func quatToDecimal(num string) int64 {
+	digits := strings.Split(num, "")
+
+	ex := 0
+
+	var out int64
+	out = 0
+	for i := len(digits) - 1; i >= 0; i-- {
+		n, err := strconv.ParseInt(digits[i], 10, 64)
+		if err != nil {
+			return 0
+		}
+		out += int64(math.Pow(4, float64(ex))) * n
+		ex++
+	}
+
+	return out
 }
 
-func Decode(dst string) (string, error) {
+func Encode(dst string) (string, error) {
 	dst = strings.TrimRight(dst, "\n")
 
 	runeslice := []rune(dst)
@@ -75,7 +88,39 @@ func Decode(dst string) (string, error) {
 
 	// 最後のDELIMはいらないのでtrim
 	out = strings.TrimRight(out, DELIM)
-	log.Println(len(out))
 
 	return out, nil
+}
+
+func zwto4(char string) (string, error) {
+	for digit, zwc := range ZWSPS {
+		char = strings.Replace(char, zwc, digit, -1)
+	}
+
+	return char, nil
+}
+
+func Decode(dst string) (string, error) {
+	dst = strings.TrimRight(dst, "\n")
+
+	chars := strings.Split(dst, DELIM)
+
+	charsdec := make([]int64, 0, len(chars))
+
+	for _, c := range chars {
+		quat, err := zwto4(c)
+		if err != nil {
+			return "", err
+		}
+		// log.Println(quat)
+		dec := quatToDecimal(quat)
+		charsdec = append(charsdec, dec)
+	}
+
+	var outstr string
+	for _, cd := range charsdec {
+		outstr += string(cd)
+	}
+
+	return outstr, nil
 }
