@@ -60,7 +60,6 @@ class ZWED():
 if __name__ == "__main__":
     ZW = ZWED()
     zwstr = ZW.Encode("こんにちは世界")
-    #zwstr = ZW.Encode("abcdefgh")
     print(zwstr)
     decoded = ZW.Decode(zwstr)
     print(decoded)

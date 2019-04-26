@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	test := "ほげほげふがふが"
+	test := "こんにちは世界"
 	zws, _ := zwed.Encode(test)
 	fmt.Printf("zws :%v, len : %v \n", zws, len(zws))
 	dec, _ := zwed.Decode(zws)

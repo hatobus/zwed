@@ -12,9 +12,9 @@ var (
 		"0": "\u200b",
 		"1": "\u200c",
 		"2": "\u200d",
-		"3": "\ufeff",
+		"3": "\u200e",
 	}
-	DELIM = "\u2028"
+	DELIM = "\u034f"
 )
 
 func decimalToQuat(num int64) string {
