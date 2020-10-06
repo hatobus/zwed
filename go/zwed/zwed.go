@@ -17,6 +17,22 @@ var (
 	DELIM = "\u034f"
 )
 
+func SetZWSpace(m map[string]string) {
+	ZWSPS = m
+}
+
+func GetZWSpace() map[string]string {
+	return ZWSPS
+}
+
+func SetDELIM(delim string) {
+	DELIM = delim
+}
+
+func GetDELIM() string {
+	return DELIM
+}
+
 func decimalToQuat(num int64) string {
 	var mod int64
 

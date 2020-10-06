@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/hatobus/zwed/cmd/zwed/zwed"
+	"github.com/hatobus/zwed/go/zwed"
 )
 
 func main() {
