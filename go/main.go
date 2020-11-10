@@ -8,6 +8,7 @@ import (
 
 func main() {
 	test := "こんにちは世界"
+	fmt.Printf("Original message: %v\n", test)
 	zws, _ := zwed.Encode(test)
 	fmt.Printf("zws :%v, len : %v \n", zws, len(zws))
 	dec, _ := zwed.Decode(zws)
