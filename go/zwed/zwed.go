@@ -2,7 +2,6 @@ package zwed
 
 import (
 	"fmt"
-	"math"
 	"strconv"
 	"strings"
 )
@@ -46,27 +45,23 @@ func Encode(dst string) (string, error) {
 }
 
 func Decode(dst string) (string, error) {
-	dst = strings.TrimRight(dst, "\n")
-
 	dst2q, err := zwto4(dst)
 	if err != nil {
 		return "", err
 	}
 
-	bpEnd := 4
-
 	var byteSlice []byte
 	for ; len(dst2q) != 0 ; {
 		// 1文字目のbit幅を取得するためunicodeのビット幅の情報を持つ部分を取得
-		// 最初の4bitに情報が入ってきており、ここでは4進数に変換されているので4桁を取ってくれば良い
-		bitWidthFour := dst2q[:bpEnd]
+		// 最初の1byteに情報が入ってきており、ここでは4進数に変換されているので4桁を取ってくれば良い
+		bitWidthFour := string([]rune(dst2q)[:4])
 
-		firstCharBitWidth, err := getOctetsFromBitPattern(bitWidthFour)
+		bitWidth, err := getOctetsFromBitPattern(bitWidthFour)
 		if err != nil {
 			return "", err
 		}
 
-		bpEnd = firstCharBitWidth * 4
+		bpEnd := bitWidth * 4
 		// 1文字目のbyte数がわかったのでbyte数*4の文だけsubstringを取得してくる
 		// (binaryのデータでは 1110 1001 なのが 3221 となるため)
 		charBytes := string([]rune(dst2q)[:bpEnd])
@@ -101,6 +96,10 @@ func getOctetsFromBitPattern(firstByte string) (int, error) {
 			break
 		}
 		bitWidth++
+	}
+
+	if bitWidth == 0 {
+		return 1, nil
 	}
 
 	return bitWidth, nil
@@ -145,20 +144,12 @@ func zwto4(char string) (string, error) {
 }
 
 func decimalToQuat(num int64) string {
-	var mod int
-
-	// 底の変換公式より
-	// log_4(N) = log_2(N) / 2
-	var strarr = make([]string, 0, int(math.Log2(float64(num))/2)+1)
-
-	for {
-		mod = int(num % 4)
+	var strarr []string
+	for i := 0; i < 4; i++ {
+		mod := int(num % 4)
 		strarr = append(strarr, strconv.Itoa(mod))
 		// int同士の割り算はintになる
 		num /= 4
-		if num == 0 {
-			break
-		}
 	}
 
 	for i := 0; i < len(strarr)/2; i++ {
