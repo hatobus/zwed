@@ -1,7 +1,6 @@
 package zwed
 
 import (
-	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -25,12 +24,64 @@ func GetZWSpace() map[string]string {
 	return zwssps
 }
 
-func Setdelim(d string) {
-	delim = d
+func Encode(dst string) (string, error) {
+	dst = strings.TrimRight(dst, "\n")
+
+	byteSlice := []byte(dst)
+
+	var quatarr = make([]string, 0)
+
+	// 4進数に変換する
+	for _, bs := range byteSlice {
+			quatarr = append(quatarr, decimalToQuat(int64(bs)))
+	}
+
+	var qs string
+	for _, quat := range quatarr {
+		for digit, zwc := range zwssps {
+			quat = strings.Replace(quat, digit, zwc, -1)
+		}
+		qs += quat
+	}
+
+	return qs, nil
 }
 
-func Getdelim() string {
-	return delim
+func Decode(dst string) (string, error) {
+	dst = strings.TrimRight(dst, "\n")
+
+	chars := strings.Split(dst, delim)
+
+	charsdec := make([]int64, 0, len(chars))
+
+	for _, c := range chars {
+		quat, err := zwto4(c)
+		if err != nil {
+			return "", err
+		}
+		// log.Println(quat)
+		dec := quatToDecimal(quat)
+		charsdec = append(charsdec, dec)
+	}
+
+	var outstr string
+	for _, cd := range charsdec {
+		outstr += string(cd)
+	}
+
+	return outstr, nil
+}
+
+func refBitFromByte(b byte, i int) int {
+	return (b >> i) & 1
+}
+
+func zwto4(char string) (string, error) {
+	for digit, zwc := range zwssps {
+		char = strings.Replace(char, zwc, digit, -1)
+	}
+
+	return char, nil
 }
 
 func decimalToQuat(num int64) string {
@@ -76,63 +127,3 @@ func quatToDecimal(num string) int64 {
 	return out
 }
 
-func Encode(dst string) (string, error) {
-	dst = strings.TrimRight(dst, "\n")
-
-	runeslice := []rune(dst)
-
-	var cs string
-	var ci int64
-	var quatarr = make([]string, 0)
-
-	// 4進数に変換する
-	for _, c := range runeslice {
-		cs = fmt.Sprintf("%d", c)
-		ci, _ = strconv.ParseInt(cs, 10, 64)
-		quatarr = append(quatarr, decimalToQuat(ci))
-	}
-
-	qs := make([]string, 0, len(quatarr))
-
-	for _, quat := range quatarr {
-		for digit, zwc := range zwssps {
-			quat = strings.Replace(quat, digit, zwc, -1)
-		}
-		qs = append(qs, quat)
-	}
-
-	return strings.Join(qs, delim), nil
-}
-
-func zwto4(char string) (string, error) {
-	for digit, zwc := range zwssps {
-		char = strings.Replace(char, zwc, digit, -1)
-	}
-
-	return char, nil
-}
-
-func Decode(dst string) (string, error) {
-	dst = strings.TrimRight(dst, "\n")
-
-	chars := strings.Split(dst, delim)
-
-	charsdec := make([]int64, 0, len(chars))
-
-	for _, c := range chars {
-		quat, err := zwto4(c)
-		if err != nil {
-			return "", err
-		}
-		// log.Println(quat)
-		dec := quatToDecimal(quat)
-		charsdec = append(charsdec, dec)
-	}
-
-	var outstr string
-	for _, cd := range charsdec {
-		outstr += string(cd)
-	}
-
-	return outstr, nil
-}
